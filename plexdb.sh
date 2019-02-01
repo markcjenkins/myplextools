@@ -1,6 +1,6 @@
 #!/bin/sh
 PROG=`basename $0`
-VERSION="1.0"
+VERSION="1.1"
 DATABASE="/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db"
 
 #
@@ -25,15 +25,15 @@ debug()
 	fi
 }
 
-USAGE="$PROG: <-b database-file> <-d> <-l> -[i|u] 'title'(s)..
+USAGE="$PROG: [-b database-file] [-d] [-l] [-i|-u] <title>...
 
 ===> 	Warning: Production database is used by default
 
 	-b filename	Database File		
-	-d		Enable Debug
+	-d		Enable Debug, Off by default
 	-l		List Info for ALL Movies
-	-i		Display Info for Title(s)
-	-u		Update Date Added for Title(s)
+	-i title(s)	Display Info for Title(s)
+	-u title(s)	Update Date Added for Title(s)
 	-v 		Version information
 	-h|?		Display usage
 "
@@ -60,10 +60,18 @@ then
 	exit 0
 fi
 
+# Validate existence of named database
+if [ ! -f "$DATABASE" ]
+then
+	echo "$PROG: Cannot locate the database: $DATABASE"
+	exit 1
+fi
+
+# Ensure sqlite3 is installed
 if [ ! -f /usr/bin/sqlite3 ]
 then
 	echo "$PROG - Script requires 'sqlite3' to be installed..."
-	exit 0
+	exit 1
 fi
 
 debug START "$PROG Script Started"
